@@ -13,23 +13,23 @@ findAll(@Param() id){
 
 @Get(':id')
 findOne(@Param('id') id){
-    const user =  this.entriesService.findOne(id)
+    const entry =  this.entriesService.findOne(id)
 
-    if(!user){
-        throw new HttpException(`Usuário não encontrado`, HttpStatus.NOT_FOUND)
+    if(!entry){
+        throw new HttpException(`Entrada não encontrada`, HttpStatus.NOT_FOUND)
     }
     
-    return user
+    return entry
 }
 
 @Post()
-create(@Body() createUserDto: CreateEntryDto){
-    return this.entriesService.create(createUserDto);
+create(@Body() createEntryDto: CreateEntryDto){
+    return this.entriesService.create(createEntryDto);
 }
 
 @Put(':id')
-update(@Param('id') id, @Body() updatedUser){
-    return this.entriesService.update(id, updatedUser)
+update(@Param('id') id, @Body() updatedEntry){
+    return this.entriesService.update(id, updatedEntry)
 }
 
 

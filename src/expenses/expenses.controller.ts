@@ -24,13 +24,13 @@ export class ExpensesController {
 
     
     @Post()
-    create(@Body() createUserDto: CreateExpenseDto){
-        return this.expensesService.create(createUserDto);
+    create(@Body() expense){
+        return this.expensesService.create(expense);
     }
     
     @Put(':id')
-    update(@Param('id') id, @Body() updatedUser){
-        return this.expensesService.update(id, updatedUser)
+    update(@Param('id') id, @Body() updatedExpense){
+        return this.expensesService.update(id, updatedExpense)
     }
     
     

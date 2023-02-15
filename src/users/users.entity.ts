@@ -19,16 +19,16 @@ export class Users{
     @Column()
     phone: string;
 
-    @OneToMany(() => Entries, (entry) => entry.id, {
+    @OneToMany(() => Entries, (entry) => entry.user, {
 		cascade: true,
 	})
 	@JoinTable()
-	entry: Entries;
+	entry: Entries[];
 
 
-  @OneToMany(() => Expenses, (expense) => expense.id, {
+  @OneToMany(() => Expenses, (expense) => expense.user_id, {
 		cascade: true,
 	})
 	@JoinTable()
-	expense: Expenses;
+	expense: Expenses[];
 }

@@ -12,6 +12,11 @@ export class CreateExpenseDto {
 
     @IsAlphanumeric()
     readonly value: Double
+
+    @IsAlphanumeric()
+    readonly recurrence_time: number
+
+    date: string
 }
 
 

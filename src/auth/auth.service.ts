@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Users } from 'src/users/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -18,11 +19,14 @@ export class AuthService {
       where: {email: email}
     });
 
-		if (!user) {
+		if (!user || !bcrypt.compareSync(pass, user.password)) {
 			throw new ForbiddenException({
 				message: 'Houve um problema com o login, verifique suas credenciais.',
 			});
 		}
+    else{
+      this.login(user)
+    }
 		return user;
   }
 

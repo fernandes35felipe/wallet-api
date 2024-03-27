@@ -1,5 +1,5 @@
 import { Users } from "src/users/users.entity";
-import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, JoinColumn, OneToOne } from "typeorm";
+import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, JoinColumn, OneToOne, OneToMany, ManyToOne} from "typeorm";
 
 @Entity('entries')
 export class Entries {
@@ -28,6 +28,6 @@ export class Entries {
     font: string
 
     @JoinColumn({name: 'user_id'})
-    @OneToOne(()=>Users, (users)=>users.id)
+    @ManyToOne(()=>Users, (users)=>users.id)
     user: number
 }

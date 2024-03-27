@@ -13,6 +13,7 @@ export class EntriesService {
         ){}
     
         async findAll(user){
+            console.log(user.id)
             const entries = await this.entryRepository.createQueryBuilder('name',)
             .select(['name', 'id', 'date', 'value', 'description', 'recurrent', 'recurrence_time', 'font', 'user'])
             .where({user: user.id})

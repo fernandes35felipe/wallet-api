@@ -10,13 +10,13 @@ export class Users{
     @Column()
     name: string;
 
-    @Column()
+    @Column({unique: true})
     email: string;
     
     @Column()
     password: string;
     
-    @Column()
+    @Column({unique: true})
     phone: string;
 
     @OneToMany(() => Entries, (entry) => entry.user, {

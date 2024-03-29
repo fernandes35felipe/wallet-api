@@ -5,9 +5,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { EntriesModule } from './entries/entries.module';
 import { ExpensesModule } from './expenses/expenses.module';
-import { UsersService } from './users/users.service';
 import { AuthModule } from './auth/auth.module';
 import { Users } from './users/users.entity';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [UsersModule, TypeOrmModule.forRoot(
@@ -21,7 +21,7 @@ import { Users } from './users/users.entity';
     autoLoadEntities: true,
     synchronize: true
   }
-  ), EntriesModule, ExpensesModule, AuthModule, ],
+  ), EntriesModule, ExpensesModule, AuthModule, GroupsModule],
   controllers: [AppController],
   providers: [AppService],
 })

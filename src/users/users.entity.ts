@@ -1,6 +1,7 @@
 import { Entries } from "src/entries/entries.entity";
 import { Expenses } from "src/expenses/expenses.entity";
-import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, OneToMany, Unique } from "typeorm";
+import { Groups } from "src/groups/groups.entity";
+import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, OneToMany, Unique, JoinColumn } from "typeorm";
 
 @Entity('users')
 export class Users{
@@ -10,7 +11,7 @@ export class Users{
     @Column()
     name: string;
 
-    @Column({unique: true})
+    @Column({unique: true, nullable: false})
     email: string;
     
     @Column()
@@ -21,14 +22,14 @@ export class Users{
 
     @OneToMany(() => Entries, (entry) => entry.user, {
 		cascade: true,
-	})
-	@JoinTable()
-	entry: Entries[];
+	  })
 
+	  @JoinTable()
+	  entry: Entries[];
 
-  @OneToMany(() => Expenses, (expense) => expense.user_id, {
-		cascade: true,
-	})
-	@JoinTable()
-	expense: Expenses[];
-}
+    @OneToMany(() => Expenses, (expense) => expense.user_id, {
+      cascade: true,
+    })
+    @JoinTable()
+    expense: Expenses[];
+  }

@@ -13,11 +13,11 @@ import { GroupsModule } from './groups/groups.module';
   imports: [UsersModule, TypeOrmModule.forRoot(
     {
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'inf34dx*',
-    database: 'wallet',
+    host: process.env.BD_HOST,
+    port: Number(process.env.BD_PORT),
+    username: process.env.BD_USER,
+    password: process.env.BD_PWD,
+    database: process.env.BD_NAME,
     autoLoadEntities: true,
     synchronize: true
   }

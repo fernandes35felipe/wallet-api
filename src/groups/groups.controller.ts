@@ -18,17 +18,23 @@ export class GroupsController {
         return this.groupsService.findAll()
     }
 
-    @Get('/email')
+    @Get('/tag')
     @UseGuards(JwtAuthGuard)
-    findOne(@Param('email') email){
-        const user =  this.groupsService.findOne(email)
+    findOne(@Param('tagname') tagname){
+        const group =  this.groupsService.findByTag(tagname)
 
-        if(!user){
+        if(!group){
             throw new HttpException(`Usuário não encontrado`, HttpStatus.NOT_FOUND)
         }
         
-        return user
+        return group
     }
+
+    @Get('/user/:id')
+    findUserGroups(@Param() id){
+    return this.groupsService.findUserGroups(id.id)
+    }
+
 
     @Post()
     create(@Body() createUserDto: CreateGroupDto){
@@ -36,20 +42,14 @@ export class GroupsController {
     }
 
     @Put(':id')
-    update(@Param('id') id, @Body() updatedUser){
-        return this.groupsService.update(id, updatedUser)
+    update(@Param('id') id, @Body() updatedGroup){
+        return this.groupsService.update(id, updatedGroup)
     }
 
-    
+
     @Delete(':id')
     delete(@Param('id') id){
         return this.groupsService.delete(id)
-    }
-
-    @Post('/login')
-    @UseGuards(AuthGuard('local'))
-    async validateUser(@Request() req) {
-       return this.authService.login(req.user);
     }
 
 }

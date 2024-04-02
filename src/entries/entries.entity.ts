@@ -1,3 +1,4 @@
+import { Groups } from "src/groups/groups.entity";
 import { Users } from "src/users/users.entity";
 import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, JoinColumn, OneToOne, OneToMany, ManyToOne} from "typeorm";
 
@@ -30,4 +31,8 @@ export class Entries {
     @JoinColumn({name: 'user_id'})
     @ManyToOne(()=>Users, (users)=>users.id)
     user: number
+
+    @JoinColumn({name: 'group_id'})
+    @ManyToOne(()=>Groups, (group)=>group.id)
+    group: number
 }

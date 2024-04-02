@@ -32,4 +32,11 @@ export class Users{
     })
     @JoinTable()
     expense: Expenses[];
+
+    @ManyToMany(
+      () => Groups,
+      group => group.id,
+      {onDelete: 'NO ACTION', onUpdate: 'NO ACTION',},
+    )
+    groups?: Groups[];
   }

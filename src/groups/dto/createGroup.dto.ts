@@ -10,4 +10,6 @@ export class CreateGroupDto {
     readonly descricao: string;
     @IsString()
     tagname: string;
+    users: any
+
 }

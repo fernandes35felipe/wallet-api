@@ -6,10 +6,12 @@ import { Groups } from './groups.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthModule } from 'src/auth/auth.module';
+import { Users } from 'src/users/users.entity';
+import { UserGroup } from 'src/user_group/user_group.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Groups]), forwardRef(()=> AuthModule)],
+  imports: [TypeOrmModule.forFeature([Groups, UserGroup]), forwardRef(()=> AuthModule)],
   controllers: [GroupsController],
   providers: [GroupsService],
   exports: [GroupsService],

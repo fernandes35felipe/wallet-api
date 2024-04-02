@@ -17,7 +17,30 @@ export class Groups{
     @Column()
     descricao: string;
     
+
     @ManyToMany(() => Users)
-    @JoinTable()
-    users: Users[]
-}
+    @JoinTable({
+      name: 'users_groups',
+      joinColumn: {
+        name: 'userId',
+        referencedColumnName: 'id',
+      },
+      inverseJoinColumn: {
+        name: 'groupId',
+        referencedColumnName: 'id',
+      },
+    })
+    
+    @OneToMany(() => Expenses, (expense) => expense.group, {
+        cascade: true,
+      })
+      @JoinTable()
+      expense: Expenses[];
+
+      @OneToMany(() => Entries, (entry) => entry.group, {
+        cascade: true,
+      })
+      @JoinTable()
+      Entry: Entries[];
+    }
+    

@@ -20,9 +20,7 @@ import { GroupsModule } from './groups/groups.module';
     database: process.env.BD_NAME,
     autoLoadEntities: true,
     synchronize: true,
-    ssl: {
-      rejectUnauthorized: false
-  }
+    ssl: false
   }
   ), EntriesModule, ExpensesModule, AuthModule, GroupsModule],
   controllers: [AppController],

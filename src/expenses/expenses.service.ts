@@ -35,6 +35,7 @@ export class ExpensesService {
                 const expense = this.expensesRepository.create({...createExpenseDto})
                 this.expensesRepository.save(expense)
 
+
                 if(createExpenseDto.recurrence_time > 1){
                     for(let i = 0; i < createExpenseDto.recurrence_time; i ++){
                         let recurrenceMonth = Number(createExpenseDto.date.substring(5, 7))+1

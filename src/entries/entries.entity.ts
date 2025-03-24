@@ -28,6 +28,9 @@ export class Entries {
     @Column()
     font: string
 
+    @Column()
+    user_id: number
+
     @JoinColumn({name: 'user_id'})
     @ManyToOne(()=>Users, (users)=>users.id)
     user: number

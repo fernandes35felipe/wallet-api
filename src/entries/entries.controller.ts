@@ -23,8 +23,8 @@ findOne(@Param('id') id){
 }
 
 @Post()
-create(@Body() createEntryDto: CreateEntryDto){
-    return this.entriesService.create(createEntryDto);
+create(@Body() entry){
+    return this.entriesService.create(entry);
 }
 
 @Put(':id')

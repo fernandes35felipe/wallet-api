@@ -13,13 +13,12 @@ export class EntriesService {
         ){}
     
         async findAll(user){
-            console.log(user.id)
             const entries = await this.entryRepository.createQueryBuilder('name',)
             .select(['name', 'id', 'date', 'value', 'description', 'recurrent', 'recurrence_time', 'font', 'user'])
-            .where({user: user.id})
+            .where({user_id: user.id})
             .orderBy('date', 'DESC')
             .getMany();
-
+           
             if(entries.length > 0){
                 return entries
            }
@@ -33,10 +32,9 @@ export class EntriesService {
         }
 
         async create(createEntryDto: CreateEntryDto){
+            const entry = this.entryRepository.create({...createEntryDto})
 
-            const course = this.entryRepository.create({...createEntryDto})
-    
-            return this.entryRepository.save(course)
+            return this.entryRepository.save(entry)
         }
 
         async update(id, updatedUser){

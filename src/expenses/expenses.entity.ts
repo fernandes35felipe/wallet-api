@@ -1,7 +1,6 @@
 import { Groups } from "src/groups/groups.entity";
 import { Users } from "src/users/users.entity";
 import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, JoinColumn, OneToOne, OneToMany, ManyToOne } from "typeorm";
-
 @Entity('expenses')
 export class Expenses {
     @PrimaryGeneratedColumn()
@@ -9,7 +8,6 @@ export class Expenses {
 
     @Column()
     name: string;
-
     @Column()
     description: string
 
@@ -35,7 +33,10 @@ export class Expenses {
     @ManyToOne(()=>Users, (users)=>users.id)
     user: number
 
+    @Column() 
+    group_id: number
+    
     @JoinColumn({name: 'group_id'})
-    @ManyToOne(()=>Groups, (group)=>group.id)
+    @ManyToOne(()=>Groups, (group)=>group.id) 
     group: number
 }

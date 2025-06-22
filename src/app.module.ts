@@ -7,22 +7,29 @@ import { EntriesModule } from './entries/entries.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { AuthModule } from './auth/auth.module';
 import { Users } from './users/users.entity';
-import { GroupsModule } from './groups/groups.module';
+import { GroupsModule } from './groups/groups.module'; 
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forRoot(
-    {
-    type: 'postgres',
-    host: process.env.BD_HOST,
-    port: Number(process.env.BD_PORT),
-    username: process.env.BD_USER,
-    password: process.env.BD_PWD,
-    database: process.env.BD_NAME,
-    autoLoadEntities: true,
-    synchronize: true,
-    ssl: false
-  }
-  ), EntriesModule, ExpensesModule, AuthModule, GroupsModule],
+  imports: [
+    UsersModule,
+    TypeOrmModule.forRoot(
+      {
+        type: 'postgres',
+        host: process.env.BD_HOST,
+        port: Number(process.env.BD_PORT),
+        username: process.env.BD_USER,
+        password: process.env.BD_PWD,
+        database: process.env.BD_NAME,
+        autoLoadEntities: true,
+        synchronize: true,
+        ssl: false
+      }
+    ),
+    EntriesModule,
+    ExpensesModule,
+    AuthModule,
+    GroupsModule 
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

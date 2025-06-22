@@ -1,73 +1,200 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException, HttpStatus, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/createGroup.dto';
 import { Groups } from './groups.entity';
 import { Users } from 'src/users/users.entity';
 import { UserGroup } from 'src/user_group/user_group.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class GroupsService {
     constructor(
-        @InjectRepository(Groups) 
+        @InjectRepository(Groups)
         private readonly groupRepository: Repository<Groups>,
-        @InjectRepository(UserGroup) 
-        private readonly userGroupRepository: Repository<UserGroup>
-        ){}
+        @InjectRepository(UserGroup)
+        private readonly userGroupRepository: Repository<UserGroup>,
+        private readonly usersService: UsersService,
+    ){}
     
-        findAll(){
-            return this.groupRepository.find();
+    findAll(){
+        return this.groupRepository.find();
+    }
+
+    findByTag(tagname: string){
+        return this.groupRepository.findOneBy({ tagname: tagname });
+    }
+
+    async findUserGroups(userId: number){
+        const userGroupsAssociations = await this.userGroupRepository.find({
+            where: { userId: userId },
+        });
+
+        if (userGroupsAssociations.length === 0) {
+            return []; 
         }
 
-        findByTag(tagname){
-            return this.groupRepository.findOneBy({ tagname: tagname });
-        }
+        const groupIds = userGroupsAssociations.map(assoc => assoc.groupId);
+        const uniqueGroupIds = [...new Set(groupIds)]; 
 
-        async findUserGroups(userId){
-            let grupos = await this.userGroupRepository.findBy({ userId: userId })
-            let gruposUser = []
-            for(let grupo of grupos){
-                let grupoTemp = await this.groupRepository.findBy({ id: grupo.groupId })
-                gruposUser.push(grupoTemp[0])
+        const groupsDetails = await this.groupRepository.find({
+            where: { id: In(uniqueGroupIds) },
+        });
+
+        const groupsMap = new Map(groupsDetails.map(group => [group.id, group]));
+
+        return userGroupsAssociations.map(assoc => {
+            const group = groupsMap.get(assoc.groupId);
+            if (group) {
+                return {
+                    id: group.id,
+                    name: group.name,
+                    tagname: group.tagname,
+                    descricao: group.descricao,
+                    isAdmin: assoc.isAdmin 
+                };
+            }
+            return null; 
+        }).filter(group => group !== null); 
+    }
+    
+    
+    async create(createGroupsDto: CreateGroupDto){
+        try{
+            const groupExist = await this.groupRepository.findOneBy({tagname: createGroupsDto.tagname})
+
+            if(groupExist){
+                throw new HttpException('Já existe um grupo com essa tag!', HttpStatus.CONFLICT);
             }
 
-            return gruposUser
+            const group = this.groupRepository.create({
+                name: createGroupsDto.name,
+                descricao: createGroupsDto.descricao,
+                tagname: createGroupsDto.tagname
+            });
+            const savedGroup = await this.groupRepository.save(group);
+
+            const userGroup = this.userGroupRepository.create({
+                userId: createGroupsDto.userId,
+                groupId: savedGroup.id,
+                isAdmin: true, 
+            });
+            await this.userGroupRepository.save(userGroup);
+
+            return savedGroup;
+        } catch (error) {
+		    throw new HttpException(
+                error.response?.message || 'Erro interno ao criar grupo.',
+                error.response?.statusCode || HttpStatus.INTERNAL_SERVER_ERROR,
+		);
+        }
+    }
+
+    async update(id: number, updatedGroup: any){
+         const group = await this.groupRepository.findOneBy({id: id})
+
+         if(!group){
+            throw new NotFoundException(`Grupo não encontrado`)
         }
 
-    
-        async create(createGroupsDto: CreateGroupDto){
-            try{
-                const groupExist = await this.groupRepository.findOneBy({tagname: createGroupsDto.tagname})
+        return this.groupRepository.update(id, updatedGroup)
+    }
 
-                if(!groupExist){
-                    const group = this.groupRepository.create({...createGroupsDto})
+    async delete(id: number){
+        try {
+            await this.userGroupRepository.delete({ groupId: id });
+            return await this.groupRepository.delete(id);
+        } catch (error) {
+            throw new NotFoundException(error.message);
+        }
+    }
 
-                    return group
-                }
-            } catch (error) {
-			    throw new HttpException(
-                    error.response.message,
-                    error.response.statusCode,
-			);
-		}
+    async getGroupMembers(groupId: number) {
+        const group = await this.groupRepository.findOneBy({ id: groupId });
+        if (!group) {
+            throw new NotFoundException(`Grupo com ID ${groupId} não encontrado.`);
         }
 
-        async update(id, updatedGroup){
-             const group = await this.groupRepository.findOneBy({id: id})
+        const members = await this.userGroupRepository.find({
+            where: { groupId: groupId },
+            relations: ['users'],
+        });
 
-             if(!group){
-                throw new NotFoundException(`Grupo não encontrado`)
+        return members.map(member => ({
+            userId: member.userId,
+            email: member.users[0]?.email,
+            name: member.users[0]?.name,
+            isAdmin: member.isAdmin,
+        }));
+    }
+
+    async addUsersToGroup(groupId: number, userEmails: string[]) {
+        const group = await this.groupRepository.findOneBy({ id: groupId });
+        if (!group) {
+            throw new NotFoundException(`Grupo com ID ${groupId} não encontrado.`);
+        }
+
+        const results: { email: string; status: string }[] = [];
+
+        for (const email of userEmails) {
+            const user = await this.usersService.findOne(email);
+            if (!user) {
+                results.push({ email, status: 'Usuário não encontrado' });
+                continue;
             }
 
-            return this.groupRepository.update(id, updatedGroup)
+            const existingAssociation = await this.userGroupRepository.findOne({
+                where: { userId: user.id, groupId: groupId },
+            });
+
+            if (existingAssociation) {
+                results.push({ email, status: 'Já é membro do grupo' });
+                continue;
+            }
+
+            const userGroup = this.userGroupRepository.create({
+                userId: user.id,
+                groupId: groupId,
+                isAdmin: false, 
+            });
+            await this.userGroupRepository.save(userGroup);
+            results.push({ email, status: 'Adicionado com sucesso' });
         }
 
-        async delete(id){
-            try {
-                return await this.groupRepository.delete(id);
-            } catch (error) {
-                throw new NotFoundException(error.message);
-            }
+        return { message: 'Processamento de usuários concluído.', details: results };
+    }
+
+    async removeUserFromGroup(groupId: number, userIdToRemove: number) {
+        const association = await this.userGroupRepository.findOne({
+            where: { groupId: groupId, userId: userIdToRemove },
+        });
+
+        if (!association) {
+            throw new NotFoundException(`Usuário não encontrado no grupo.`);
         }
-    
+
+        await this.userGroupRepository.remove(association);
+        return { message: 'Usuário removido do grupo com sucesso.' };
+    }
+
+    async updateUserGroupAdminStatus(groupId: number, userIdToUpdate: number, isAdmin: boolean) {
+        const association = await this.userGroupRepository.findOne({
+            where: { groupId: groupId, userId: userIdToUpdate },
+        });
+
+        if (!association) {
+            throw new NotFoundException(`Associação de usuário e grupo não encontrada.`);
+        }
+
+        association.isAdmin = isAdmin;
+        await this.userGroupRepository.save(association);
+        return { message: 'Status de administrador atualizado com sucesso.' };
+    }
+
+    async isUserGroupAdmin(userId: number, groupId: number): Promise<boolean> {
+        const association = await this.userGroupRepository.findOne({
+            where: { userId: userId, groupId: groupId },
+        });
+        return association ? association.isAdmin : false;
+    }
 }

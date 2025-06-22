@@ -11,71 +11,74 @@ export class ExpensesService {
         private readonly expensesRepository: Repository<Expenses>
         ){}
     
-        async findAll(user){
-            const expenses = await this.expensesRepository.createQueryBuilder('name',)
-            .select(['name', 'id', 'date', 'value', 'description', 'recurrent', 'recurrence_time', 'font', 'user'])
-            .where({user_id: user.id})
-            .orderBy('date', 'DESC')
+    async findAll(user: any, groupId?: number){
+        const queryBuilder = this.expensesRepository.createQueryBuilder('expense')
+            .select(['expense.name', 'expense.id', 'expense.date', 'expense.value', 'expense.description', 'expense.recurrent', 'expense.recurrence_time', 'expense.font', 'expense.user_id', 'expense.group_id'])
+            .where('expense.user_id = :userId', { userId: user.id });
+
+        if (groupId !== undefined && groupId !== null) {
+            queryBuilder.andWhere('expense.group_id = :groupId', { groupId: groupId });
+        }
+
+        const expenses = await queryBuilder
+            .orderBy('expense.date', 'DESC')
             .getMany();
 
-            if(expenses.length > 0){
-                return expenses
-           }
-            else{
-                throw new HttpException(`Não foram encontrados gastos para esse usuário`, HttpStatus.NOT_FOUND)
-            }
+        if(expenses.length > 0){
+            return expenses
         }
-
-        findOne(id){
-            return this.expensesRepository.findOneBy({id: id});
+        else{
+            throw new HttpException(`Não foram encontrados gastos para esse usuário no grupo selecionado`, HttpStatus.NOT_FOUND)
         }
+    }
 
-        async create(createExpenseDto: CreateExpenseDto){
-            try{
-                const expense = this.expensesRepository.create({...createExpenseDto})
-                this.expensesRepository.save(expense)
+    findOne(id: number){
+        return this.expensesRepository.findOneBy({id: id});
+    }
+
+    async create(createExpenseDto: CreateExpenseDto){
+        try{
+            const expense = this.expensesRepository.create({...createExpenseDto})
+            this.expensesRepository.save(expense)
 
 
-                if(createExpenseDto.recurrence_time > 1){
-                    for(let i = 0; i < createExpenseDto.recurrence_time; i ++){
-                        let recurrenceMonth = Number(createExpenseDto.date.substring(5, 7))+1
-                        let recurrenceYear = Number(createExpenseDto.date.substring(0, 4))
+            if(createExpenseDto.recurrence_time > 1){
+                for(let i = 0; i < createExpenseDto.recurrence_time; i ++){
+                    let recurrenceMonth = Number(createExpenseDto.date.substring(5, 7))+1
+                    let recurrenceYear = Number(createExpenseDto.date.substring(0, 4))
 
-                        if(recurrenceMonth > 12){
-                            recurrenceMonth = recurrenceMonth-12
-                            recurrenceYear = recurrenceYear+1
-                        }
-
-                        createExpenseDto.date = recurrenceYear + '-' + recurrenceMonth.toString().padStart(2, '0') + '-'+ createExpenseDto.date.substring(8, 10)
-                       
-                        const recurrenceExpense = this.expensesRepository.create({...createExpenseDto})
-                        this.expensesRepository.save(recurrenceExpense)
+                    if(recurrenceMonth > 12){
+                        recurrenceMonth = recurrenceMonth-12
+                        recurrenceYear = recurrenceYear+1
                     }
-                }
 
-                return expense
+                    createExpenseDto.date = recurrenceYear + '-' + recurrenceMonth.toString().padStart(2, '0') + '-'+ createExpenseDto.date.substring(8, 10)
+                   
+                    const recurrenceExpense = this.expensesRepository.create({...createExpenseDto})
+                    this.expensesRepository.save(recurrenceExpense)
+                }
+            }
+
+            return expense
         }catch(error){
             throw new HttpException('Internal Server Error',HttpStatus.INTERNAL_SERVER_ERROR)        
         }
+    }
 
+    async update(id: number, updatedExpense: any){
+       const expense = await this.expensesRepository.findOneBy({id: id})
+         if(!expense){
+            throw new NotFoundException(`Gasto não encontrado`)
         }
 
-        async update(id, updatedExpense){
-             const expense = await this.expensesRepository.findOneBy({id: id})
-             console.log(expense)
+        return this.expensesRepository.update(id, updatedExpense)
+    }
 
-             if(!expense){
-                throw new NotFoundException(`Usuario não encontrado`)
-            }
-
-            return this.expensesRepository.update(id, updatedExpense)
+    async delete(id: number){
+        try {
+            return await this.expensesRepository.delete(id);
+        } catch (error) {
+            throw new NotFoundException(error.message);
         }
-
-        async delete(id){
-            try {
-                return await this.expensesRepository.delete(id);
-            } catch (error) {
-                throw new NotFoundException(error.message);
-            }
-        }
+    }
 }

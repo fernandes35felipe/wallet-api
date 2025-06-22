@@ -14,7 +14,7 @@ export class UsersController {
         ){}
 
         @Get('/me/get')
-        // @UseGuards(JwtAuthGuard)
+        @UseGuards(JwtAuthGuard)
         async me(@Request() req) {
           return this.usersService.me(req);
         }
@@ -42,10 +42,9 @@ export class UsersController {
     }
 
     @Put(':id')
-    update(@Param('id') id, @Body() updatedUser){
-        return this.usersService.update(id, updatedUser)
+    async update(@Param('id') id: string, @Body() updatedUser: any) { 
+        return this.usersService.update(Number(id), updatedUser);
     }
-
     
     @Delete(':id')
     delete(@Param('id') id){

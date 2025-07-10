@@ -15,7 +15,7 @@ import { GroupsModule } from './groups/groups.module';
       type: 'mongodb',
       url:
         process.env.MONGODB_URI ||
-        'mongodb+srv://admin:<db_password>@cluster0.ojl4sve.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
+        'mongodb+srv://admin:Swordfish35@cluster0.ojl4sve.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
       synchronize: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
     }),

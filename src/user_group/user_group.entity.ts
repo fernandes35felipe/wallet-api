@@ -1,28 +1,17 @@
-import { Groups } from "src/groups/groups.entity";
-import { Users } from "src/users/users.entity";
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Entity, ObjectIdColumn, Column } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Entity('user_group')
 export class UserGroup {
-  @PrimaryColumn({ name: 'group_id' })
-  groupId: number;
+  @ObjectIdColumn()
+  _id: ObjectId;
 
-  @PrimaryColumn({ name: 'user_id' })
-  userId: number;
+  @Column()
+  userId: ObjectId;
 
-  @ManyToOne(
-    () => Groups,
-    group => group.id,
-    {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'}
-  )
-  @JoinColumn([{ name: 'groupId', referencedColumnName: 'id' }])
-  groups: Groups[];
+  @Column()
+  groupId: ObjectId;
 
-  @ManyToOne(
-    () => Users,
-    user => user.id,
-    {onDelete: 'NO ACTION', onUpdate: 'NO ACTION'}
-  )
-  @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
-  users: Users[];
+  @Column({ default: false })
+  isAdmin: boolean;
 }

@@ -1,22 +1,23 @@
-//Basicamente é a Interface ou o layout de informações que serão recebidas pela função CreateCourse
-
-import { IsAlphanumeric, IsString } from "class-validator";
-import { Double } from "typeorm";
+import { IsAlphanumeric, IsString, IsNumber } from 'class-validator';
 
 export class CreateExpenseDto {
-    @IsString()
-    readonly name: string;
-    
-    @IsString()
-    readonly email: string;
+  @IsString()
+  readonly name: string;
+  @IsString()
+  readonly description: string;
 
-    @IsAlphanumeric()
-    readonly value: Double
+  @IsNumber()
+  readonly value: number;
 
-    @IsAlphanumeric()
-    readonly recurrence_time: number
+  @IsNumber()
+  readonly recurrence_time: number;
 
-    date: string
+  date: string;
+  font: string;
+
+  @IsString()
+  user_id: string;
+
+  @IsString()
+  group_id: string;
 }
-
-

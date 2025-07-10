@@ -1,13 +1,14 @@
-//Basicamente é a Interface ou o layout de informações que serão recebidas pela função CreateCourse
-
-import { IsAlphanumeric, IsString } from "class-validator";
-import { Double } from "typeorm";
+import { IsAlphanumeric, IsString, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
-    @IsString()
-    readonly name: string;
-    @IsString()
-    readonly email: string;
-    @IsString()
-    password: string;
+  @IsString()
+  readonly name: string;
+  @IsString()
+  readonly email: string;
+  @IsString()
+  password: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }

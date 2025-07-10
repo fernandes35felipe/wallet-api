@@ -1,41 +1,35 @@
-import { Groups } from "src/groups/groups.entity";
-import { Users } from "src/users/users.entity";
-import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, JoinColumn, OneToOne, OneToMany, ManyToOne} from "typeorm";
+import { Entity, ObjectIdColumn, Column } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Entity('entries')
 export class Entries {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ObjectIdColumn()
+  _id: ObjectId;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column()
-    description: string
+  @Column()
+  description: string;
 
-    @Column("decimal", {scale: 2})
-    value: Number
-    
-    @Column({nullable: true, type: 'date'})
-    date: string
+  @Column('double')
+  value: number;
 
-    @Column()
-    recurrent: string
+  @Column({ nullable: true })
+  date: string;
 
-    @Column()
-    recurrence_time: number
+  @Column()
+  recurrent: string;
 
-    @Column()
-    font: string
+  @Column()
+  recurrence_time: number;
 
-    @Column()
-    user_id: number
+  @Column()
+  font: string;
 
-    @JoinColumn({name: 'user_id'})
-    @ManyToOne(()=>Users, (users)=>users.id)
-    user: number
+  @Column()
+  user_id: ObjectId;
 
-    @JoinColumn({name: 'group_id'})
-    @ManyToOne(()=>Groups, (group)=>group.id)
-    group: number
+  @Column({ nullable: true })
+  group_id: ObjectId | null;
 }

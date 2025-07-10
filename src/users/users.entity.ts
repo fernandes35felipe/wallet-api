@@ -1,42 +1,21 @@
-import { Entries } from "src/entries/entries.entity";
-import { Expenses } from "src/expenses/expenses.entity";
-import { Groups } from "src/groups/groups.entity";
-import { Double, Entity, PrimaryGeneratedColumn,Column,JoinTable,ManyToMany, OneToMany, Unique, JoinColumn } from "typeorm";
+import { Entity, ObjectIdColumn, Column } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Entity('users')
-export class Users{
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Users {
+  @ObjectIdColumn()
+  _id: ObjectId;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column({unique: true, nullable: false})
-    email: string;
-    
-    @Column()
-    password: string;
-    
-    @Column({unique: true})
-    phone: string;
+  @Column({ unique: true })
+  email: string;
 
-    @OneToMany(() => Entries, (entry) => entry.user, {
-		cascade: true,
-	  })
+  @Column()
+  password: string;
 
-	  @JoinTable()
-	  entry: Entries[];
-
-    @OneToMany(() => Expenses, (expense) => expense.user_id, {
-      cascade: true,
-    })
-    @JoinTable()
-    expense: Expenses[];
-
-    @ManyToMany(
-      () => Groups,
-      group => group.id,
-      {onDelete: 'NO ACTION', onUpdate: 'NO ACTION',},
-    )
-    groups?: Groups[];
-  }
+  @Column({ unique: true, nullable: true })
+  phone: string;
+  id: any;
+}

@@ -42,6 +42,8 @@ export class GroupsService {
     const userGroupsAssociations = await this.userGroupRepository.find({
       where: { userId: userObjectId },
     });
+    console.log(userGroupsAssociations);
+    console.log(userObjectId);
 
     if (userGroupsAssociations.length === 0) {
       return [];
